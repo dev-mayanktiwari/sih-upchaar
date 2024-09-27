@@ -492,14 +492,14 @@ export const getDepartmentsProtected = async (req, res) => {
 };
 
 export const addMedicine = async (req, res) => {
-  const { name, quantity, expiryDate } = req.body;
+  const { name, quantity } = req.body;
   const { hospitalId } = req;
   try {
     const newMedicine = await prisma.medicineInventory.create({
       data: {
         name,
         quantity: parseInt(quantity, 10),
-        expiryDate: new Date(expiryDate),
+        expiryDate: new Date().toISOString(),
         hospitalId,
       },
     });

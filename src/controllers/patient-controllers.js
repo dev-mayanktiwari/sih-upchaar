@@ -41,7 +41,7 @@ export const registerPatient = async (req, res) => {
     // console.log(patient.id);
     const token = jwt.sign(
       { patientId: patient.id, email: patient.email },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
 
     return res.status(200).json({
@@ -77,7 +77,7 @@ export const signinPatient = async (req, res) => {
 
     const token = jwt.sign(
       { patientId: patient.id, email: patient.email },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
 
     res.json({ token });
@@ -96,8 +96,24 @@ export const bookAppointment = async (req, res) => {
 
   try {
     // Create the appointment
-    console.log(req.body);
-    let appointment = await prisma.appointment.create({
+    //console.log(req.body);
+    let appointment = await prisma.appointment.findFirst({
+      where: {
+        hospitalId: parseInt(hospitalId, 10),
+        departmentId: parseInt(departmentId, 10),
+        time,
+        appointmentStatus: {
+          not: "Cancelled",
+        },
+      },
+    });
+
+    if (appointment) {
+      return res.status(400).json({
+        error: "Appointement slot not available!!",
+      });
+    }
+    appointment = await prisma.appointment.create({
       data: {
         title,
         time,
@@ -144,7 +160,7 @@ export const checkQueueStatus = async (req, res) => {
 
     if (
       ["Pending", "Cancelled", "Completed"].includes(
-        appointment.appointmentStatus
+        appointment.appointmentStatus,
       )
     ) {
       return res.status(200).json({ status: appointment.appointmentStatus });
