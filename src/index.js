@@ -5,8 +5,9 @@ import dotenv from "dotenv";
 import client from "./utils/redisClient.js";
 import patientRoutes from "./routes/patient-routes.js";
 import hospitalRoutes from "./routes/hospital-routes.js";
+import chatRoutes from "./routes/chat-routes.js";
 
-dotenv.config({ path: "../.env" });
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 
@@ -19,12 +20,14 @@ app.get("/health", (req, res) => {
 
 app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/hospital", hospitalRoutes);
+app.use("/api/chat", chatRoutes);
 
 let redisClient;
 
 app.listen(PORT, async () => {
   try {
-    
+    const redisUrl = process.env.REDIS_URL;
+    //  console.log(redisUrl);
     await client.connect();
 
     console.log("Redis connected successfully");
